@@ -1,0 +1,156 @@
+openapi: 3.0.3
+info:
+  title: Die Labyrinth-Spiel API
+  description: |-
+    Spezifikation:
+    - Es ist ein Labyrinth Spiel - nur ein Weg führt von A1 nach E5. Felder sind blockiert wenn sie nicht vom spieler begangen werden können
+    - Das Spiel startet auf einem 5x5-Feld
+    - Der Spieler beginnt immer auf Feld A1 und das Ziel ist E5
+    - Der Spieler kann sich in vier Richtungen bewegen: links, rechts, oben, unten
+      - Immer nur ein Feld
+    - Falls sich der Spieler außerhalb des Spielfelds bewegt, endet das Spiel mit dem Status „failed“. Das Spiel ist vorbei und kann nicht wieder von vorne begonnen werden
+    - Falls der Spieler das Zielfeld E5 erreicht, endet das Spiel mit dem Status „success".
+    - Falls der Spieler gegen eine blockiertes Feld läuft, bleibt er auf seiner Position und erhält eine entsprechende Rückmeldung.
+  version: 1.0.0
+
+paths:
+  /labyrinthGames:
+    get:
+      summary: Alle Spiele abrufen
+      responses:
+        '200':
+          description: Liste der bestehenden Spiele
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LabyrinthGame'
+    post:
+      summary: Neues Spiel starten
+      responses:
+        '201':
+          description: Spiel erfolgreich erstellt
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LabyrinthGame'
+
+  /labyrinthGames/{gameId}:
+    get:
+      summary: Ein Spiel abrufen
+      parameters:
+        - name: gameId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Spielstatus abgerufen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LabyrinthGame'
+    delete:
+      summary: Ein Spiel löschen
+      parameters:
+        - name: gameId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Spiel erfolgreich gelöscht
+        '404':
+          description: Spiel nicht gefunden
+
+  /labyrinthGames/{gameId}/steps:
+    get:
+      summary: Alle Schritte eines Spiels abrufen
+      parameters:
+        - name: gameId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Liste aller Schritte des Spiels
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StepResponse'
+    post:
+      summary: Neuen Schritt machen
+      parameters:
+        - name: gameId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StepRequest'
+      responses:
+        '201':
+          description: Schritt erfolgreich erstellt
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StepResponse'
+
+  /labyrinthGames/{gameId}/steps/{stepId}:
+    delete:
+      summary: Einen Schritt löschen
+      parameters:
+        - name: gameId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: stepId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Schritt erfolgreich gelöscht
+        '404':
+          description: Schritt nicht gefunden
+
+components:
+  schemas:
+    LabyrinthGame:
+      type: object
+      properties:
+        id:
+          type: integer
+        status:
+          type: string
+          enum: [ongoing, success, failed]
+    
+    StepRequest:
+      type: object
+      properties:
+        direction:
+          type: string
+          enum: [left, right, up, down]
+    
+    StepResponse:
+      type: object
+      properties:
+        stepId:
+          type: integer
+        status:
+          type: string
+          enum: [done, wall, invalid]
+        position:
+          type: string
