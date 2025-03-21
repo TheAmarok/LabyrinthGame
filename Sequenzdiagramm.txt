@@ -1,0 +1,16 @@
+title Labyrinth API
+actor Spieler
+Spieler->Server:post: Erstelle neues Spiel
+Spieler<--Server: GameID
+loop bis beendet
+Spieler->Server:put(GameID, Richtung): Sage wer sich wohin bewegt
+alt Landet Außerhalb
+Spieler<--Server: Beende Spiel mit Status "failed"
+else Landet auf Ziel
+Spieler<--Server: Beende Spiel mit Status "success"
+else Landet auf Wand
+Spieler<--Server: Gib "wall" zurück
+else Schritt erfolgreich
+Spieler<--Server: Gib neues Feld zurück
+end
+end
