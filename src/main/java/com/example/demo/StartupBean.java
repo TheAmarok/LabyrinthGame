@@ -11,9 +11,10 @@ public class StartupBean {
     @PostConstruct
     public void init() {
         DefaultApi defaultApi = new DefaultApi();
-        //GameDto result = defaultApi.gamePost(...
 
         GameInputDto gameInput = new GameInputDto();
-        gameInput.setGroupName("Minotaurus Senior");
+        gameInput.setGroupName("Minotaurus Junior");
+        GameDto result = defaultApi.gamePost(gameInput);
+        System.out.println(result);
     }
 }
